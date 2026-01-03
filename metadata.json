@@ -1,0 +1,5 @@
+{
+  "name": "Furniture Price Reference",
+  "description": "A responsive furniture price reference guide with export capabilities to PNG and PDF, featuring detailed item categorization and pricing formulas.",
+  "requestFramePermissions": []
+}
