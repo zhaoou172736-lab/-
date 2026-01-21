@@ -77,11 +77,11 @@ const priceData: PriceItem[] = [
   { name: "智能镜", formula: "长度", unit: "m", priceRange: "2800~3800/m", material: "智能玻璃", description: "触控/防雾/灯光", category: "智能设备", icon: <Circle className={iconClass} /> },
   { name: "灯带", formula: "按米", unit: "m", priceRange: "85", material: "LED", description: "灯带 (实价)", category: "智能设备", icon: <Sparkles className={iconClass} /> },
   { name: "变压器 (100W)", formula: "按个", unit: "个", priceRange: "238", material: "电子元件", description: "标配含1根延长线", category: "智能设备", icon: <Zap className={iconClass} /> },
-  { name: "变压器延长线", formula: "按根", unit: "根", priceRange: "待定", material: "线材", description: "2米/根; 通常每个变压器需额外配1根", category: "智能设备", icon: <Zap className={iconClass} /> },
-  { name: "变压器分线盒", formula: "按个", unit: "个", priceRange: "待定", material: "塑料", description: "5孔", category: "智能设备", icon: <Zap className={iconClass} /> },
+  { name: "变压器延长线", formula: "按根", unit: "根", priceRange: "5", material: "线材", description: "2米/根; 通常每个变压器需额外配1根", category: "智能设备", icon: <Zap className={iconClass} /> },
+  { name: "变压器分线盒", formula: "按个", unit: "个", priceRange: "35", material: "塑料", description: "5孔", category: "智能设备", icon: <Zap className={iconClass} /> },
 
   // Hardware
-  { name: "液压荷叶 (十字)", formula: "按个", unit: "个", priceRange: "180", material: "金属", description: "即十字荷叶；隐形门标配；单价较高", category: "五金", icon: <Settings className={iconClass} /> },
+  { name: "液压荷叶 (十字)", formula: "按个", unit: "个", priceRange: "180", material: "金属", description: "常规配3个；超高(>2.4m)配4个", category: "五金", icon: <Settings className={iconClass} /> },
   { name: "四寸荷叶", formula: "按个", unit: "个", priceRange: "40", material: "金属", description: "隐形门平替方案；3个约120元", category: "五金", icon: <Settings className={iconClass} /> },
   { name: "门锁", formula: "按把", unit: "把", priceRange: "待定", material: "金属", description: "需客户选款后核价；默认不含在预算内", category: "五金", icon: <Settings className={iconClass} /> },
   { name: "门吸", formula: "按个", unit: "个", priceRange: "待定", material: "金属/磁吸", description: "单开门配1个，子母门/双开门配2个", category: "五金", icon: <Settings className={iconClass} /> },
@@ -148,17 +148,30 @@ const FurniturePriceReference: React.FC = () => {
 
   // Hinge Logic: Auto-calculate quantity based on height
   useEffect(() => {
-    if (selectedItem?.name === "柜门铰链" && calcInputs.h) {
+    if (calcInputs.h) {
       const h = parseFloat(calcInputs.h);
       if (!isNaN(h)) {
-        let q = 2;
-        if (h < 1000) q = 2;
-        else if (h >= 1000 && h < 1500) q = 3;
-        else if (h >= 1500 && h <= 2000) q = 4;
-        else q = 5;
+        // Cabinet Hinges Logic
+        if (selectedItem?.name === "柜门铰链") {
+          let q = 2;
+          if (h < 1000) q = 2;
+          else if (h >= 1000 && h < 1500) q = 3;
+          else if (h >= 1500 && h <= 2000) q = 4;
+          else q = 5;
 
-        if (calcInputs.q !== q.toString()) {
-          setCalcInputs(prev => ({ ...prev, q: q.toString() }));
+          if (calcInputs.q !== q.toString()) {
+            setCalcInputs(prev => ({ ...prev, q: q.toString() }));
+          }
+        }
+        
+        // Room Door Hydraulic Hinge Logic
+        if (selectedItem?.name === "液压荷叶 (十字)") {
+           let q = 3;
+           if (h > 2400) q = 4;
+           
+           if (calcInputs.q !== q.toString()) {
+            setCalcInputs(prev => ({ ...prev, q: q.toString() }));
+           }
         }
       }
     }
@@ -179,7 +192,7 @@ const FurniturePriceReference: React.FC = () => {
     }
   }, [calcInputs.l, selectedItem]);
 
-  const showWidthHeight = selectedItem && (["单边套", "双边套", "墙板", "柜门", "柜门 (免漆板)", "衣柜柜体 (生态板)", "衣柜柜体", "抽屉面", "柜体 (双面铝)", "敞开柜 (标准)", "敞开柜/高柜 (混油)", "敞开柜/高柜 (橡木/烟熏)", "敞开柜/高柜 (金属/影木)", "布鲁斯立柱开放柜+亚克力透光板", "柜门铰链"].includes(selectedItem.name) || selectedItem.name.includes("墙板") || selectedItem.name.includes("柜门") || selectedItem.formula.includes("宽×高"));
+  const showWidthHeight = selectedItem && (["单边套", "双边套", "墙板", "柜门", "柜门 (免漆板)", "衣柜柜体 (生态板)", "衣柜柜体", "抽屉面", "柜体 (双面铝)", "敞开柜 (标准)", "敞开柜/高柜 (混油)", "敞开柜/高柜 (橡木/烟熏)", "敞开柜/高柜 (金属/影木)", "布鲁斯立柱开放柜+亚克力透光板", "柜门铰链", "液压荷叶 (十字)"].includes(selectedItem.name) || selectedItem.name.includes("墙板") || selectedItem.name.includes("柜门") || selectedItem.formula.includes("宽×高"));
   const showLength = selectedItem && (["收口条", "异形收口条", "浴室柜", "梳妆台", "抽屉盒", "智能镜", "灯带"].includes(selectedItem.name) || selectedItem.formula.includes("长度") || selectedItem.formula === "按米");
   const showDepth = selectedItem?.name === "敞开柜 (标准)";
 
